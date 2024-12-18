@@ -58,6 +58,11 @@ void Dallas2406::update() {
   bool pio_b_activity_latch = channel_info_byte & 0x20;
   bool both_channels = channel_info_byte & 0x40;
   bool has_supply = channel_info_byte & 0x80;
+  ESP_LOGD(TAG, "'%s': pio_a_flipflop=%d, pio_b_flipflop=%d, pio_a_sensed_level=%d, pio_b_sensed_level=%d, pio_a_activity_latch=%d, pio_b_activity_latch=%d, both_channels=%d, has_supply=%d",
+         this->get_name().c_str(),
+         pio_a_flipflop, pio_b_flipflop, pio_a_sensed_level, pio_b_sensed_level,
+         pio_a_activity_latch, pio_b_activity_latch, both_channels, has_supply);
+
   this->publish_state(pio_a_sensed_level ? 1.0f : 0.0f);
   this->bus_->reset();
   /*
