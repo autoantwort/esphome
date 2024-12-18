@@ -21,11 +21,11 @@ class Dallas2406 : public PollingComponent, public sensor::Sensor, public one_wi
   uint8_t scratch_pad_[9] = {0};
 
   /// Get the number of milliseconds we have to wait for the conversion phase.
-  uint16_t millis_to_wait_for_conversion_() const;
+  /*uint16_t millis_to_wait_for_conversion_() const;
   bool read_scratch_pad_();
   void read_scratch_pad_int_();
   bool check_scratch_pad_();
-  float get_temp_c_();
+  float get_temp_c_();*/
 };
 
 }  // namespace dallas_2406

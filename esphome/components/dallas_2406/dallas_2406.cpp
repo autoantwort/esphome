@@ -6,13 +6,10 @@ namespace dallas_2406 {
 
 static const char *const TAG = "dallas.2406";
 
-static const uint8_t DALLAS_MODEL_DS18S20 = 0x10;
-static const uint8_t DALLAS_COMMAND_START_CONVERSION = 0x44;
-static const uint8_t DALLAS_COMMAND_READ_SCRATCH_PAD = 0xBE;
-static const uint8_t DALLAS_COMMAND_WRITE_SCRATCH_PAD = 0x4E;
-static const uint8_t DALLAS_COMMAND_COPY_SCRATCH_PAD = 0x48;
+// static const uint8_t DALLAS_MODEL_DS18S20 = 0x10;
+static const uint8_t DALLAS_COMMAND_CHANNEL_ACCESS = 0xF5;
 
-uint16_t Dallas2406::millis_to_wait_for_conversion_() const {
+/*uint16_t Dallas2406::millis_to_wait_for_conversion_() const {
   switch (this->resolution_) {
     case 9:
       return 94;
@@ -23,7 +20,7 @@ uint16_t Dallas2406::millis_to_wait_for_conversion_() const {
     default:
       return 750;
   }
-}
+}*/
 
 void Dallas2406::dump_config() {
   ESP_LOGCONFIG(TAG, "Dallas Temperature Sensor:");
@@ -42,8 +39,28 @@ void Dallas2406::update() {
 
   this->status_clear_warning();
 
-  this->send_command_(DALLAS_COMMAND_START_CONVERSION);
+  this->send_command_(DALLAS_COMMAND_CHANNEL_ACCESS);
+  // CHANNEL CONTROL BYTE 1
+  // BIT 7  BIT 6  BIT 5  BIT 4  BIT 3  BIT 2  BIT 1  BIT 0
+  // ALR    IM     TOG    IC     CHS1   CHS0   CRC1   CRC0
+  uint8_t channel_control_byte_1 = 0b10000100; // select channel A only
+  this->bus_->write8(channel_control_byte_1);
+  uint8_t channel_control_byte_2 = 0xFF; // per datasheet
+  this->bus_->write8(channel_control_byte_2);
 
+  // read CHANNEL INFO BYTE
+  uint8_t channel_info_byte = this->bus_->read8();
+  bool pio_a_flipflop = channel_info_byte & 0x01;
+  bool pio_b_flipflop = channel_info_byte & 0x02;
+  bool pio_a_sensed_level = channel_info_byte & 0x04;
+  bool pio_b_sensed_level = channel_info_byte & 0x08;
+  bool pio_a_activity_latch = channel_info_byte & 0x10;
+  bool pio_b_activity_latch = channel_info_byte & 0x20;
+  bool both_channels = channel_info_byte & 0x40;
+  bool has_supply = channel_info_byte & 0x80;
+  this->publish_state(pio_a_sensed_level ? 1.0f : 0.0f);
+  this->bus_->reset();
+  /*
   this->set_timeout(this->get_address_name(), this->millis_to_wait_for_conversion_(), [this] {
     if (!this->read_scratch_pad_() || !this->check_scratch_pad_()) {
       this->publish_state(NAN);
@@ -54,30 +71,11 @@ void Dallas2406::update() {
     ESP_LOGD(TAG, "'%s': Got Temperature=%.1f°C", this->get_name().c_str(), tempc);
     this->publish_state(tempc);
   });
-}
-
-void IRAM_ATTR Dallas2406::read_scratch_pad_int_() {
-  for (uint8_t &i : this->scratch_pad_) {
-    i = this->bus_->read8();
-  }
-}
-
-bool Dallas2406::read_scratch_pad_() {
-  bool success;
-  {
-    InterruptLock lock;
-    success = this->send_command_(DALLAS_COMMAND_READ_SCRATCH_PAD);
-    if (success)
-      this->read_scratch_pad_int_();
-  }
-  if (!success) {
-    ESP_LOGW(TAG, "'%s' - reading scratch pad failed bus reset", this->get_name().c_str());
-    this->status_set_warning("bus reset failed");
-  }
-  return success;
+  */
 }
 
 void Dallas2406::setup() {
+  /*
   ESP_LOGCONFIG(TAG, "setting up Dallas temperature sensor...");
   if (!this->check_address_())
     return;
@@ -124,9 +122,10 @@ void Dallas2406::setup() {
     // write value to EEPROM
     this->send_command_(DALLAS_COMMAND_COPY_SCRATCH_PAD);
   }
+  */
 }
 
-bool Dallas2406::check_scratch_pad_() {
+/*bool Dallas2406::check_scratch_pad_() {
   bool chksum_validity = (crc8(this->scratch_pad_, 8) == this->scratch_pad_[8]);
 
 #ifdef ESPHOME_LOG_LEVEL_VERY_VERBOSE
@@ -163,7 +162,7 @@ float Dallas2406::get_temp_c_() {
   }
 
   return temp / 16.0f;
-}
+}*/
 
 }  // namespace dallas_2406
 }  // namespace esphome
