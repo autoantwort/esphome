@@ -38,7 +38,7 @@ void Dallas2406::update() {
     return;
 
   this->status_clear_warning();
-
+  ESP_LOGCONFIG(TAG, "reading Dallas 2406...");
   this->send_command_(DALLAS_COMMAND_CHANNEL_ACCESS);
   // CHANNEL CONTROL BYTE 1
   // BIT 7  BIT 6  BIT 5  BIT 4  BIT 3  BIT 2  BIT 1  BIT 0
