@@ -8,25 +8,24 @@ namespace dallas_2406 {
 
 static const char *const TAG = "dallas.2406";
 
-// static const uint8_t DALLAS_MODEL_DS18S20 = 0x10;
 static const uint8_t DALLAS_COMMAND_CHANNEL_ACCESS = 0xF5;
 
 void Dallas2406::dump_config() {
-  ESP_LOGCONFIG(TAG, "Dallas Temperature Sensor:");
+  ESP_LOGCONFIG(TAG, "Dallas 2406 Sensor:");
   if (this->address_ == 0) {
     ESP_LOGW(TAG, "  Unable to select an address");
     return;
   }
   LOG_ONE_WIRE_DEVICE(this);
   LOG_UPDATE_INTERVAL(this);
+  LOG_SENSOR("  ", "Channel 1", this->channel_1_);
+  LOG_SENSOR("  ", "Channel 2", this->channel_2_);
 }
 
 void Dallas2406::update() {
   if (this->address_ == 0)
     return;
 
-  this->status_clear_warning();
-  ESP_LOGCONFIG(TAG, "reading Dallas 2406...");
   this->send_command_(DALLAS_COMMAND_CHANNEL_ACCESS);
   // CHANNEL CONTROL BYTE 1
   // BIT 7  BIT 6  BIT 5  BIT 4  BIT 3  BIT 2  BIT 1  BIT 0
@@ -46,21 +45,20 @@ void Dallas2406::update() {
   const bool pio_b_activity_latch = channel_info_byte & 0x20;
   const bool has_channel_b = channel_info_byte & 0x40;
   const bool has_supply = channel_info_byte & 0x80;
-  ESP_LOGD(TAG, "'%s': pio_a_flipflop=%d, pio_b_flipflop=%d, pio_a_sensed_level=%d, pio_b_sensed_level=%d, pio_a_activity_latch=%d, pio_b_activity_latch=%d, has_channel_b=%d, has_supply=%d",
-         "test",
+  ESP_LOGD(TAG, "Got pio_a_flipflop=%d, pio_b_flipflop=%d, pio_a_sensed_level=%d, pio_b_sensed_level=%d, pio_a_activity_latch=%d, pio_b_activity_latch=%d, has_channel_b=%d, has_supply=%d",
          pio_a_flipflop, pio_b_flipflop, pio_a_sensed_level, pio_b_sensed_level,
          pio_a_activity_latch, pio_b_activity_latch, has_channel_b, has_supply);
-        /* #ifdef ESPHOME_LOG_LEVEL_VERY_VERBOSE
-  ESP_LOGVV(TAG, "Scratch pad: %02X.%02X.%02X.%02X.%02X.%02X.%02X.%02X.%02X (%02X)", this->scratch_pad_[0],
-            this->scratch_pad_[1], this->scratch_pad_[2], this->scratch_pad_[3], this->scratch_pad_[4],
-            this->scratch_pad_[5], this->scratch_pad_[6], this->scratch_pad_[7], this->scratch_pad_[8],
-            crc8(this->scratch_pad_, 8));
-#endif
- */
+  
   if (this->channel_1_)
     this->channel_1_->publish_state(pio_a_sensed_level);
-  if (this->channel_2_)
-    this->channel_2_->publish_state(pio_b_sensed_level);
+  if (this->channel_2_) {
+    if (!has_channel_b) {
+      this->channel_2_->publish_state(pio_b_sensed_level);
+      this->status_clear_warning();
+    } else {
+      this->status_set_warning("Channel 2 not available");
+    }
+  }
   this->bus_->reset();
 }
 
