@@ -18,7 +18,6 @@ void Dallas2406::dump_config() {
     return;
   }
   LOG_ONE_WIRE_DEVICE(this);
-  ESP_LOGCONFIG(TAG, "  Resolution: %u bits", this->resolution_);
   LOG_UPDATE_INTERVAL(this);
 }
 
@@ -47,10 +46,10 @@ void Dallas2406::update() {
   const bool pio_b_activity_latch = channel_info_byte & 0x20;
   const bool has_channel_b = channel_info_byte & 0x40;
   const bool has_supply = channel_info_byte & 0x80;
-  ESP_LOGD(TAG, "'%s': pio_a_flipflop=%d, pio_b_flipflop=%d, pio_a_sensed_level=%d, pio_b_sensed_level=%d, pio_a_activity_latch=%d, pio_b_activity_latch=%d, both_channels=%d, has_supply=%d",
-         this->get_name().c_str(),
+  ESP_LOGD(TAG, "'%s': pio_a_flipflop=%d, pio_b_flipflop=%d, pio_a_sensed_level=%d, pio_b_sensed_level=%d, pio_a_activity_latch=%d, pio_b_activity_latch=%d, has_channel_b=%d, has_supply=%d",
+         "test",
          pio_a_flipflop, pio_b_flipflop, pio_a_sensed_level, pio_b_sensed_level,
-         pio_a_activity_latch, pio_b_activity_latch, both_channels, has_supply);
+         pio_a_activity_latch, pio_b_activity_latch, has_channel_b, has_supply);
         /* #ifdef ESPHOME_LOG_LEVEL_VERY_VERBOSE
   ESP_LOGVV(TAG, "Scratch pad: %02X.%02X.%02X.%02X.%02X.%02X.%02X.%02X.%02X (%02X)", this->scratch_pad_[0],
             this->scratch_pad_[1], this->scratch_pad_[2], this->scratch_pad_[3], this->scratch_pad_[4],
