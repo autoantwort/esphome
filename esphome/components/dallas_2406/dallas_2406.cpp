@@ -4,23 +4,12 @@
 namespace esphome {
 namespace dallas_2406 {
 
+// Datasheet: https://www.analog.com/media/en/technical-documentation/data-sheets/ds2406.pdf
+
 static const char *const TAG = "dallas.2406";
 
 // static const uint8_t DALLAS_MODEL_DS18S20 = 0x10;
 static const uint8_t DALLAS_COMMAND_CHANNEL_ACCESS = 0xF5;
-
-/*uint16_t Dallas2406::millis_to_wait_for_conversion_() const {
-  switch (this->resolution_) {
-    case 9:
-      return 94;
-    case 10:
-      return 188;
-    case 11:
-      return 375;
-    default:
-      return 750;
-  }
-}*/
 
 void Dallas2406::dump_config() {
   ESP_LOGCONFIG(TAG, "Dallas Temperature Sensor:");
@@ -49,125 +38,36 @@ void Dallas2406::update() {
   this->bus_->write8(channel_control_byte_2);
 
   // read CHANNEL INFO BYTE
-  uint8_t channel_info_byte = this->bus_->read8();
-  bool pio_a_flipflop = channel_info_byte & 0x01;
-  bool pio_b_flipflop = channel_info_byte & 0x02;
-  bool pio_a_sensed_level = channel_info_byte & 0x04;
-  bool pio_b_sensed_level = channel_info_byte & 0x08;
-  bool pio_a_activity_latch = channel_info_byte & 0x10;
-  bool pio_b_activity_latch = channel_info_byte & 0x20;
-  bool both_channels = channel_info_byte & 0x40;
-  bool has_supply = channel_info_byte & 0x80;
+  const uint8_t channel_info_byte = this->bus_->read8();
+  const bool pio_a_flipflop = channel_info_byte & 0x01;
+  const bool pio_b_flipflop = channel_info_byte & 0x02;
+  const bool pio_a_sensed_level = channel_info_byte & 0x04;
+  const bool pio_b_sensed_level = channel_info_byte & 0x08;
+  const bool pio_a_activity_latch = channel_info_byte & 0x10;
+  const bool pio_b_activity_latch = channel_info_byte & 0x20;
+  const bool has_channel_b = channel_info_byte & 0x40;
+  const bool has_supply = channel_info_byte & 0x80;
   ESP_LOGD(TAG, "'%s': pio_a_flipflop=%d, pio_b_flipflop=%d, pio_a_sensed_level=%d, pio_b_sensed_level=%d, pio_a_activity_latch=%d, pio_b_activity_latch=%d, both_channels=%d, has_supply=%d",
          this->get_name().c_str(),
          pio_a_flipflop, pio_b_flipflop, pio_a_sensed_level, pio_b_sensed_level,
          pio_a_activity_latch, pio_b_activity_latch, both_channels, has_supply);
-
-  this->publish_state(pio_a_sensed_level ? 1.0f : 0.0f);
-  this->bus_->reset();
-  /*
-  this->set_timeout(this->get_address_name(), this->millis_to_wait_for_conversion_(), [this] {
-    if (!this->read_scratch_pad_() || !this->check_scratch_pad_()) {
-      this->publish_state(NAN);
-      return;
-    }
-
-    float tempc = this->get_temp_c_();
-    ESP_LOGD(TAG, "'%s': Got Temperature=%.1f°C", this->get_name().c_str(), tempc);
-    this->publish_state(tempc);
-  });
-  */
-}
-
-void Dallas2406::setup() {
-  /*
-  ESP_LOGCONFIG(TAG, "setting up Dallas temperature sensor...");
-  if (!this->check_address_())
-    return;
-  if (!this->read_scratch_pad_())
-    return;
-  if (!this->check_scratch_pad_())
-    return;
-
-  if ((this->address_ & 0xff) == DALLAS_MODEL_DS18S20) {
-    // DS18S20 doesn't support resolution.
-    ESP_LOGW(TAG, "DS18S20 doesn't support setting resolution.");
-    return;
-  }
-
-  uint8_t res;
-  switch (this->resolution_) {
-    case 12:
-      res = 0x7F;
-      break;
-    case 11:
-      res = 0x5F;
-      break;
-    case 10:
-      res = 0x3F;
-      break;
-    case 9:
-    default:
-      res = 0x1F;
-      break;
-  }
-
-  if (this->scratch_pad_[4] == res)
-    return;
-  this->scratch_pad_[4] = res;
-
-  {
-    InterruptLock lock;
-    if (this->send_command_(DALLAS_COMMAND_WRITE_SCRATCH_PAD)) {
-      this->bus_->write8(this->scratch_pad_[2]);  // high alarm temp
-      this->bus_->write8(this->scratch_pad_[3]);  // low alarm temp
-      this->bus_->write8(this->scratch_pad_[4]);  // resolution
-    }
-
-    // write value to EEPROM
-    this->send_command_(DALLAS_COMMAND_COPY_SCRATCH_PAD);
-  }
-  */
-}
-
-/*bool Dallas2406::check_scratch_pad_() {
-  bool chksum_validity = (crc8(this->scratch_pad_, 8) == this->scratch_pad_[8]);
-
-#ifdef ESPHOME_LOG_LEVEL_VERY_VERBOSE
+        /* #ifdef ESPHOME_LOG_LEVEL_VERY_VERBOSE
   ESP_LOGVV(TAG, "Scratch pad: %02X.%02X.%02X.%02X.%02X.%02X.%02X.%02X.%02X (%02X)", this->scratch_pad_[0],
             this->scratch_pad_[1], this->scratch_pad_[2], this->scratch_pad_[3], this->scratch_pad_[4],
             this->scratch_pad_[5], this->scratch_pad_[6], this->scratch_pad_[7], this->scratch_pad_[8],
             crc8(this->scratch_pad_, 8));
 #endif
-  if (!chksum_validity) {
-    ESP_LOGW(TAG, "'%s' - Scratch pad checksum invalid!", this->get_name().c_str());
-    this->status_set_warning("scratch pad checksum invalid");
-  }
-  return chksum_validity;
+ */
+  if (this->channel_1_)
+    this->channel_1_->publish_state(pio_a_sensed_level);
+  if (this->channel_2_)
+    this->channel_2_->publish_state(pio_b_sensed_level);
+  this->bus_->reset();
 }
 
-float Dallas2406::get_temp_c_() {
-  int16_t temp = (this->scratch_pad_[1] << 8) | this->scratch_pad_[0];
-  if ((this->address_ & 0xff) == DALLAS_MODEL_DS18S20) {
-    return (temp >> 1) + (this->scratch_pad_[7] - this->scratch_pad_[6]) / float(this->scratch_pad_[7]) - 0.25;
-  }
-  switch (this->resolution_) {
-    case 9:
-      temp &= 0xfff8;
-      break;
-    case 10:
-      temp &= 0xfffc;
-      break;
-    case 11:
-      temp &= 0xfffe;
-      break;
-    case 12:
-    default:
-      break;
-  }
+void Dallas2406::setup() {
 
-  return temp / 16.0f;
-}*/
+}
 
 }  // namespace dallas_2406
 }  // namespace esphome

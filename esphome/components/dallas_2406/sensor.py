@@ -1,11 +1,13 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
-from esphome.components import one_wire, sensor
+from esphome.components import one_wire, sensor, binary_sensor
 from esphome.const import (
     CONF_RESOLUTION,
     DEVICE_CLASS_TEMPERATURE,
     STATE_CLASS_MEASUREMENT,
     UNIT_CELSIUS,
+    CONF_CHANNEL_1,
+    CONF_CHANNEL_2,
 )
 
 dallas_2406_ns = cg.esphome_ns.namespace("dallas_2406")
@@ -13,21 +15,15 @@ dallas_2406_ns = cg.esphome_ns.namespace("dallas_2406")
 Dallas2406Sensor = dallas_2406_ns.class_(
     "Dallas2406",
     cg.PollingComponent,
-    sensor.Sensor,
     one_wire.OneWireDevice,
 )
 
 CONFIG_SCHEMA = (
-    sensor.sensor_schema(
-        Dallas2406Sensor,
-        unit_of_measurement=UNIT_CELSIUS,
-        accuracy_decimals=1,
-        device_class=DEVICE_CLASS_TEMPERATURE,
-        state_class=STATE_CLASS_MEASUREMENT,
-    )
-    .extend(
+    cv.Schema(
         {
-            cv.Optional(CONF_RESOLUTION, default=12): cv.int_range(min=9, max=12),
+            cv.GenerateID(): cv.declare_id(Dallas2406Sensor),
+            cv.Optional(CONF_CHANNEL_1): binary_sensor.binary_sensor_schema(),
+            cv.Optional(CONF_CHANNEL_2): binary_sensor.binary_sensor_schema(),
         }
     )
     .extend(one_wire.one_wire_device_schema())
@@ -36,8 +32,14 @@ CONFIG_SCHEMA = (
 
 
 async def to_code(config):
-    var = await sensor.new_sensor(config)
+    var = cg.new_Pvariable(config[CONF_ID])
     await cg.register_component(var, config)
     await one_wire.register_one_wire_device(var, config)
 
-    cg.add(var.set_resolution(config[CONF_RESOLUTION]))
+    if CONF_CHANNEL_1 in config:
+        sens = await binary_sensor.new_binary_sensor(config[CONF_CHANNEL_1])
+        cg.add(var.set_channel_1_sensor(sens))
+    
+    if CONF_CHANNEL_2 in config:
+        sens = await binary_sensor.new_binary_sensor(config[CONF_CHANNEL_2])
+        cg.add(var.set_channel_2_sensor(sens))
