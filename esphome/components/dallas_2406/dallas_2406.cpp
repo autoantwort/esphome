@@ -18,8 +18,8 @@ void Dallas2406::dump_config() {
   }
   LOG_ONE_WIRE_DEVICE(this);
   LOG_UPDATE_INTERVAL(this);
-  LOG_SENSOR("  ", "Channel 1", this->channel_1_);
-  LOG_SENSOR("  ", "Channel 2", this->channel_2_);
+  LOG_BINARY_SENSOR("  ", "Channel 1", this->channel_1_);
+  LOG_BINARY_SENSOR("  ", "Channel 2", this->channel_2_);
 }
 
 void Dallas2406::update() {
