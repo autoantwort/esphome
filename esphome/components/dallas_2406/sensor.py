@@ -6,6 +6,7 @@ from esphome.const import (
     DEVICE_CLASS_TEMPERATURE,
     STATE_CLASS_MEASUREMENT,
     UNIT_CELSIUS,
+    CONF_ID,
     #CONF_CHANNEL_1,
     #CONF_CHANNEL_2,
 )
