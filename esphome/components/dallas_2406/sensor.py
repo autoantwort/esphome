@@ -36,7 +36,7 @@ async def to_code(config):
     if CONF_CHANNEL_1 in config:
         sens = await binary_sensor.new_binary_sensor(config[CONF_CHANNEL_1])
         cg.add(var.set_channel_1_sensor(sens))
-    
+
     if CONF_CHANNEL_2 in config:
         sens = await binary_sensor.new_binary_sensor(config[CONF_CHANNEL_2])
         cg.add(var.set_channel_2_sensor(sens))
