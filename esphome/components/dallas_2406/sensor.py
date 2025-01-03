@@ -1,18 +1,11 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
-from esphome.components import one_wire, sensor, binary_sensor
+from esphome.components import one_wire, binary_sensor
 from esphome.const import (
-    CONF_RESOLUTION,
-    DEVICE_CLASS_TEMPERATURE,
-    STATE_CLASS_MEASUREMENT,
-    UNIT_CELSIUS,
     CONF_ID,
-    #CONF_CHANNEL_1,
-    #CONF_CHANNEL_2,
+    CONF_CHANNEL_1,
+    CONF_CHANNEL_2,
 )
-
-CONF_CHANNEL_1 = "channel_1"
-CONF_CHANNEL_2 = "channel_2"
 
 dallas_2406_ns = cg.esphome_ns.namespace("dallas_2406")
 
