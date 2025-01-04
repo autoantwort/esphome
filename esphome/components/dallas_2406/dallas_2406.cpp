@@ -18,8 +18,10 @@ void Dallas2406::dump_config() {
   }
   LOG_ONE_WIRE_DEVICE(this);
   LOG_UPDATE_INTERVAL(this);
+#ifdef USE_BINARY_SENSOR
   LOG_BINARY_SENSOR("  ", "Channel 1", this->channel_1_);
   LOG_BINARY_SENSOR("  ", "Channel 2", this->channel_2_);
+#endif
 }
 
 void Dallas2406::update() {
@@ -49,6 +51,7 @@ void Dallas2406::update() {
          pio_a_flipflop, pio_b_flipflop, pio_a_sensed_level, pio_b_sensed_level,
          pio_a_activity_latch, pio_b_activity_latch, has_channel_b, has_supply);
   
+#ifdef USE_BINARY_SENSOR
   if (this->channel_1_)
     this->channel_1_->publish_state(pio_a_sensed_level);
   if (this->channel_2_) {
@@ -59,6 +62,7 @@ void Dallas2406::update() {
       this->status_set_warning("Channel 2 not available");
     }
   }
+#endif
   this->bus_->reset();
 }
 
