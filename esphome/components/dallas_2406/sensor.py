@@ -5,6 +5,8 @@ from esphome.const import (
     CONF_ID,
 )
 
+DEPENDENCIES = ["binary_sensor"]
+
 CONF_CHANNEL_1 = "channel_1"
 CONF_CHANNEL_2 = "channel_2"
 
