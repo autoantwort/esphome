@@ -23,7 +23,7 @@ Dallas2406 = dallas_2406_ns.class_(
 CONFIG_SCHEMA = (
     cv.Schema(
         {
-            cv.GenerateID(): cv.declare_id(Dallas2406Sensor),
+            cv.GenerateID(): cv.declare_id(Dallas2406),
         }
     )
     .extend(one_wire.one_wire_device_schema())
