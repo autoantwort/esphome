@@ -52,11 +52,11 @@ void Dallas2406::update() {
          pio_a_activity_latch, pio_b_activity_latch, has_channel_b, has_supply);
   
 #ifdef USE_BINARY_SENSOR
-  if (this->channel_1_)
-    this->channel_1_->publish_state(pio_a_sensed_level);
-  if (this->channel_2_) {
+  if (this->channel_1_binary_sensor_)
+    this->channel_1_binary_sensor_->publish_state(pio_a_sensed_level);
+  if (this->channel_2_binary_sensor_) {
     if (!has_channel_b) {
-      this->channel_2_->publish_state(pio_b_sensed_level);
+      this->channel_2_binary_sensor_->publish_state(pio_b_sensed_level);
       this->status_clear_warning();
     } else {
       this->status_set_warning("Channel 2 not available");
