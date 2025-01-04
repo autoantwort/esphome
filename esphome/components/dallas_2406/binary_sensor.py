@@ -11,7 +11,7 @@ CHANNELS = [1, 2]
 CONFIG_SCHEMA = binary_sensor.binary_sensor_schema().extend(
     {
         cv.GenerateID(CONF_DALLAS_2406_ID): cv.use_id(Dallas2406),
-        cv.Required(CONF_CHANNEL): cv.one_of(*CHANNELS, lower=True),
+        cv.Required(CONF_CHANNEL): cv.one_of(*CHANNELS, int=True),
     }
 )
 
