@@ -22,6 +22,10 @@ void Dallas2406::dump_config() {
   LOG_BINARY_SENSOR("  ", "Channel 1", this->channel_1_binary_sensor_);
   LOG_BINARY_SENSOR("  ", "Channel 2", this->channel_2_binary_sensor_);
 #endif
+#ifdef USE_SWITCH
+  LOG_SWITCH("  ", "Channel 1", this->channel_1_switch_);
+  LOG_SWITCH("  ", "Channel 2", this->channel_2_switch_);
+#endif
 }
 
 void Dallas2406::update() {
@@ -32,9 +36,9 @@ void Dallas2406::update() {
   // CHANNEL CONTROL BYTE 1
   // BIT 7  BIT 6  BIT 5  BIT 4  BIT 3  BIT 2  BIT 1  BIT 0
   // ALR    IM     TOG    IC     CHS1   CHS0   CRC1   CRC0
-  uint8_t channel_control_byte_1 = 0b10000100; // select channel A only
+  uint8_t channel_control_byte_1 = 0b10000100;  // select channel A only
   this->bus_->write8(channel_control_byte_1);
-  uint8_t channel_control_byte_2 = 0xFF; // per datasheet
+  uint8_t channel_control_byte_2 = 0xFF;  // per datasheet
   this->bus_->write8(channel_control_byte_2);
 
   // read CHANNEL INFO BYTE
@@ -47,10 +51,12 @@ void Dallas2406::update() {
   const bool pio_b_activity_latch = channel_info_byte & 0x20;
   const bool has_channel_b = channel_info_byte & 0x40;
   const bool has_supply = channel_info_byte & 0x80;
-  ESP_LOGD(TAG, "Got pio_a_flipflop=%d, pio_b_flipflop=%d, pio_a_sensed_level=%d, pio_b_sensed_level=%d, pio_a_activity_latch=%d, pio_b_activity_latch=%d, has_channel_b=%d, has_supply=%d",
-         pio_a_flipflop, pio_b_flipflop, pio_a_sensed_level, pio_b_sensed_level,
-         pio_a_activity_latch, pio_b_activity_latch, has_channel_b, has_supply);
-  
+  ESP_LOGD(TAG,
+           "Got pio_a_flipflop=%d, pio_b_flipflop=%d, pio_a_sensed_level=%d, pio_b_sensed_level=%d, "
+           "pio_a_activity_latch=%d, pio_b_activity_latch=%d, has_channel_b=%d, has_supply=%d",
+           pio_a_flipflop, pio_b_flipflop, pio_a_sensed_level, pio_b_sensed_level, pio_a_activity_latch,
+           pio_b_activity_latch, has_channel_b, has_supply);
+
 #ifdef USE_BINARY_SENSOR
   if (this->channel_1_binary_sensor_)
     this->channel_1_binary_sensor_->publish_state(pio_a_sensed_level);
@@ -66,8 +72,26 @@ void Dallas2406::update() {
   this->bus_->reset();
 }
 
-void Dallas2406::setup() {
+void Dallas2406::setup() {}
 
+void Dallas2406::write_state(uint8_t channel, bool state) {
+  if (this->address_ == 0 || channel > 2 || channel == 0)
+    return;
+
+  this->send_command_(DALLAS_COMMAND_CHANNEL_ACCESS);
+  // CHANNEL CONTROL BYTE 1
+  // BIT 7  BIT 6  BIT 5  BIT 4  BIT 3  BIT 2  BIT 1  BIT 0
+  // ALR    IM     TOG    IC     CHS1   CHS0   CRC1   CRC0
+  uint8_t channel_control_byte_1 = 0b00000100 | (0b1 << (1 + channel));
+  this->bus_->write8(channel_control_byte_1);
+  uint8_t channel_control_byte_2 = 0xFF;  // per datasheet
+  this->bus_->write8(channel_control_byte_2);
+
+  // read CHANNEL INFO BYTE
+  this->bus_->read8();
+  // write PIO STATE (one bit is enough)
+  this->bus_->write8(state ? 0xFF : 0x00);
+  this->bus_->reset();
 }
 
 }  // namespace dallas_2406
