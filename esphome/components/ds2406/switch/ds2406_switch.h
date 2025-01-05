@@ -2,12 +2,12 @@
 
 #include "esphome/components/switch/switch.h"
 
-#include "../dallas_2406.h"
+#include "../ds2406.h"
 
 namespace esphome {
-namespace dallas_2406 {
+namespace ds2406 {
 
-class Dallas2406Switch : public switch_::Switch, public Parented<Dallas2406> {
+class Ds2406Switch : public switch_::Switch, public Parented<Ds2406> {
  public:
   void write_state(bool state) override;
   void set_channel(uint8_t channel) { this->channel_ = channel; }
@@ -16,5 +16,5 @@ class Dallas2406Switch : public switch_::Switch, public Parented<Dallas2406> {
   uint8_t channel_{0};
 };
 
-}  // namespace dallas_2406
+}  // namespace ds2406
 }  // namespace esphome

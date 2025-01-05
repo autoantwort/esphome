@@ -7,13 +7,13 @@ CODEOWNERS = ["@autoantwort"]
 
 DEPENDENCIES = ["one_wire"]
 MULTI_CONF = True
-CONF_DALLAS_2406_ID = "dallas_2406_id"
+CONF_DS2406_ID = "ds2406_id"
 
 
-dallas_2406_ns = cg.esphome_ns.namespace("dallas_2406")
+ds2406_ns = cg.esphome_ns.namespace("ds2406")
 
-Dallas2406 = dallas_2406_ns.class_(
-    "Dallas2406",
+Ds2406 = ds2406_ns.class_(
+    "Ds2406",
     cg.PollingComponent,
     one_wire.OneWireDevice,
 )
@@ -21,7 +21,7 @@ Dallas2406 = dallas_2406_ns.class_(
 CONFIG_SCHEMA = (
     cv.Schema(
         {
-            cv.GenerateID(): cv.declare_id(Dallas2406),
+            cv.GenerateID(): cv.declare_id(Ds2406),
         }
     )
     .extend(one_wire.one_wire_device_schema())

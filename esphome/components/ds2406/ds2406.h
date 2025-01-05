@@ -11,9 +11,9 @@
 #endif
 
 namespace esphome {
-namespace dallas_2406 {
+namespace ds2406 {
 
-class Dallas2406 : public PollingComponent, public one_wire::OneWireDevice {
+class Ds2406 : public PollingComponent, public one_wire::OneWireDevice {
 #ifdef USE_BINARY_SENSOR
   SUB_BINARY_SENSOR(channel_1)
   SUB_BINARY_SENSOR(channel_2)
@@ -30,5 +30,5 @@ class Dallas2406 : public PollingComponent, public one_wire::OneWireDevice {
   void write_state(uint8_t channel, bool state);
 };
 
-}  // namespace dallas_2406
+}  // namespace ds2406
 }  // namespace esphome

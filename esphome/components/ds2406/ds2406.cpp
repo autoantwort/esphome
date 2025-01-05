@@ -1,17 +1,17 @@
-#include "dallas_2406.h"
+#include "ds2406.h"
 #include "esphome/core/log.h"
 
 namespace esphome {
-namespace dallas_2406 {
+namespace ds2406 {
 
 // Datasheet: https://www.analog.com/media/en/technical-documentation/data-sheets/ds2406.pdf
 
-static const char *const TAG = "dallas.2406";
+static const char *const TAG = "Ds2406";
 
 static const uint8_t DALLAS_COMMAND_CHANNEL_ACCESS = 0xF5;
 
-void Dallas2406::dump_config() {
-  ESP_LOGCONFIG(TAG, "Dallas 2406 Sensor:");
+void Ds2406::dump_config() {
+  ESP_LOGCONFIG(TAG, "Ds 2406 Sensor:");
   if (this->address_ == 0) {
     ESP_LOGW(TAG, "  Unable to select an address");
     return;
@@ -28,7 +28,7 @@ void Dallas2406::dump_config() {
 #endif
 }
 
-void Dallas2406::update() {
+void Ds2406::update() {
   if (this->address_ == 0)
     return;
 
@@ -72,9 +72,9 @@ void Dallas2406::update() {
   this->bus_->reset();
 }
 
-void Dallas2406::setup() {}
+void Ds2406::setup() {}
 
-void Dallas2406::write_state(uint8_t channel, bool state) {
+void Ds2406::write_state(uint8_t channel, bool state) {
   if (this->address_ == 0 || channel > 2 || channel == 0)
     return;
 
@@ -94,5 +94,5 @@ void Dallas2406::write_state(uint8_t channel, bool state) {
   this->bus_->reset();
 }
 
-}  // namespace dallas_2406
+}  // namespace ds2406
 }  // namespace esphome
