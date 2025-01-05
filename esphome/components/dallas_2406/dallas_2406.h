@@ -1,9 +1,7 @@
 #pragma once
 
 #include "esphome/core/component.h"
-#include "esphome/components/sensor/sensor.h"
 #include "esphome/components/one_wire/one_wire.h"
-#include "esphome/components/binary_sensor/binary_sensor.h"
 
 #ifdef USE_BINARY_SENSOR
 #include "esphome/components/binary_sensor/binary_sensor.h"

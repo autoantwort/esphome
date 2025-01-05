@@ -1,7 +1,6 @@
 #pragma once
 
 #include "esphome/components/switch/switch.h"
-#include "esphome/core/component.h"
 
 #include "../dallas_2406.h"
 
