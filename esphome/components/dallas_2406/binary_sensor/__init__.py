@@ -3,7 +3,7 @@ from esphome.components import binary_sensor
 import esphome.config_validation as cv
 from esphome.const import CONF_CHANNEL
 
-from . import CONF_DALLAS_2406_ID, Dallas2406
+from .. import CONF_DALLAS_2406_ID, Dallas2406
 
 DEPENDENCIES = ["dallas_2406"]
 
