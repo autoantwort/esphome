@@ -1,6 +1,7 @@
 import esphome.codegen as cg
 from esphome.components import switch
 import esphome.config_validation as cv
+from esphome.const import CONF_CHANNEL
 
 from .. import CONF_DALLAS_2406_ID, Dallas2406, dallas_2406_ns
 
@@ -8,7 +9,6 @@ DEPENDENCIES = ["dallas_2406"]
 
 Dallas2406Switch = dallas_2406_ns.class_("Dallas2406Switch", switch.Switch)
 
-CONF_CHANNEL = "channel"
 CHANNELS = [1, 2]
 
 CONFIG_SCHEMA = switch.switch_schema(Dallas2406Switch).extend(
