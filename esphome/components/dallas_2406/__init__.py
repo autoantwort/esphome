@@ -1,9 +1,7 @@
 import esphome.codegen as cg
+from esphome.components import one_wire
 import esphome.config_validation as cv
-from esphome.components import one_wire, binary_sensor
-from esphome.const import (
-    CONF_ID,
-)
+from esphome.const import CONF_ID
 
 CODEOWNERS = ["@autoantwort"]
 
@@ -35,4 +33,3 @@ async def to_code(config):
     var = cg.new_Pvariable(config[CONF_ID])
     await cg.register_component(var, config)
     await one_wire.register_one_wire_device(var, config)
-
