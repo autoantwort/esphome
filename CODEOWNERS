@@ -108,7 +108,6 @@ esphome/components/current_based/* @djwmarcx
 esphome/components/dac7678/* @NickB1
 esphome/components/daikin_arc/* @MagicBear
 esphome/components/daikin_brc/* @hagak
-esphome/components/ds2406/* @autoantwort
 esphome/components/dallas_temp/* @ssieb
 esphome/components/daly_bms/* @s1lvi0
 esphome/components/dashboard_import/* @esphome/core
@@ -121,6 +120,7 @@ esphome/components/dht/* @OttoWinter
 esphome/components/display_menu_base/* @numo68
 esphome/components/dps310/* @kbx81
 esphome/components/ds1307/* @badbadc0ffee
+esphome/components/ds2406/* @autoantwort
 esphome/components/dsmr/* @glmnet @zuidwijk
 esphome/components/duty_time/* @dudanov
 esphome/components/ee895/* @Stock-M
