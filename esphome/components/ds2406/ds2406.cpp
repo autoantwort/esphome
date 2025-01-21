@@ -61,7 +61,7 @@ void Ds2406::update() {
   if (this->channel_1_binary_sensor_)
     this->channel_1_binary_sensor_->publish_state(pio_a_sensed_level);
   if (this->channel_2_binary_sensor_) {
-    if (!has_channel_b) {
+    if (has_channel_b) {
       this->channel_2_binary_sensor_->publish_state(pio_b_sensed_level);
       this->status_clear_warning();
     } else {
